@@ -1,0 +1,12 @@
+CREATE TABLE Place(
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    longitude REAL NOT NULL,
+    latitude REAL NOT NULL
+);
+
+insert:
+INSERT INTO Place(name, longitude, latitude) VALUES (?, ?, ?);
+
+getAll:
+SELECT * FROM Place;
