@@ -4,7 +4,9 @@ import androidx.annotation.DrawableRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,9 +16,9 @@ import de.danotter.smooothweather.domain.WeatherType
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalTime
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
@@ -36,20 +38,30 @@ class WeatherViewModel @Inject constructor(
                             pages = weatherOverview.items.map { weatherItem ->
                                 val weatherData = weatherItem.weatherData
 
+                                val temperature = weatherData.temperature?.toInt()
                                 val icon = weatherData.weatherType?.let(::getWeatherIcon)
 
-                                val color = Color(color = Random.nextInt())
-                                    .copy(alpha = 1f)
+                                val fraction = if (temperature != null) {
+                                    (temperature + 20).coerceIn(0..40) * (100f / 40f) / 100f
+                                } else 0.5f
+                                val color = lerp(Color(0xFF1184e8), Color(0xFFB7121F), fraction)
                                 WeatherPageUiModel(
                                     placeName = weatherItem.placeName.orEmpty(),
-                                    temperature = weatherData.temperature?.toInt(),
+                                    temperature = temperature,
                                     weatherDescription = weatherData.weatherDescription,
                                     weatherIcon = icon,
-                                    feltTemperature = weatherData.apparentTemperature?.toInt()?.let { "$it°" } ?:"?",
+                                    feltTemperature = weatherData.apparentTemperature?.toInt(),
                                     chanceOfPrecipitation = weatherData.precipitation?.toString() ?: "? %",
-                                    windSpeed = weatherData.windSpeed?.toInt()?.toString() ?: "?",
+                                    windSpeed = weatherData.windSpeed?.toInt(),
                                     humidityPercentage = weatherData.humidity?.toString() ?: "?",
-                                    backgroundColor = color
+                                    backgroundColor = color,
+                                    hourlyWeather = weatherItem.weatherData.hourlyWeather.mapIndexed { index, value ->
+                                        HourWeatherUiModel(
+                                            LocalTime(index, 0),
+                                            icon = value.weatherType?.let { getWeatherIcon(it) },
+                                            temperature = value.temperature?.toInt()
+                                        )
+                                    }
                                 )
                             }
                         )
@@ -67,6 +79,7 @@ class WeatherViewModel @Inject constructor(
     private fun getWeatherIcon(weatherType: WeatherType): IconSpec {
         return when (weatherType) {
             WeatherType.CLOUDY -> IconSpec.ImageVectorIcon(Icons.Default.Cloud)
+            WeatherType.PARTLY_CLOUDY -> IconSpec.ResourceIcon(R.drawable.ic_partly_cloudy)
             WeatherType.CLEAR_SKY -> IconSpec.ImageVectorIcon(Icons.Default.WbSunny)
             WeatherType.FOG -> IconSpec.ImageVectorIcon(Icons.Default.Cloud)
             WeatherType.DRIZZLE -> IconSpec.ResourceIcon(R.drawable.ic_rainy)
@@ -88,23 +101,34 @@ data class WeatherSuccessUiModel(
     val weatherPager: WeatherPagerUiModel
 ) : WeatherUiModel()
 
+@Immutable
 sealed interface IconSpec {
     class ImageVectorIcon(val imageVector: ImageVector) : IconSpec
     class ResourceIcon(@DrawableRes val resourceId: Int) : IconSpec
 }
 
+@Immutable
 data class WeatherPagerUiModel(
     val pages: List<WeatherPageUiModel>
 )
 
+@Immutable
 data class WeatherPageUiModel(
     val placeName: String,
     val temperature: Int?,
-    val feltTemperature: String,
-    val windSpeed: String,
+    val feltTemperature: Int?,
+    val windSpeed: Int?,
     val chanceOfPrecipitation: String,
     val humidityPercentage: String,
     val weatherDescription: String?,
     val backgroundColor: Color,
+    val hourlyWeather: List<HourWeatherUiModel>,
     val weatherIcon: IconSpec?
+)
+
+@Immutable
+data class HourWeatherUiModel(
+    val time: LocalTime,
+    val icon: IconSpec?,
+    val temperature: Int?
 )

@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.filled.*
@@ -21,6 +22,7 @@ import de.danotter.smooothweather.ui.SmooothWeatherApp
 import de.danotter.smooothweather.ui.theme.SmooothWeatherTheme
 import java.util.*
 
+@ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @AndroidEntryPoint

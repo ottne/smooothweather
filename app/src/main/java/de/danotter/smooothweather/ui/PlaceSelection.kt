@@ -52,7 +52,6 @@ fun PlaceSelectionDialog(
                 transitionState.targetState = false
             },
             properties = DialogProperties(
-                // This property makes the dialog full width of the screen
                 usePlatformDefaultWidth = false
             )
         ) {

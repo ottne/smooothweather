@@ -17,7 +17,7 @@ interface OpenMeteoApi {
         TEMPERATURE_2M("temperature_2m"),
         RAIN("rain"),
         WINDSPEED_10M("windspeed_10m"),
-        RELATIVE_HUMIDITY_10m("relativehumidity_2m"),
+        RELATIVE_HUMIDITY_10M("relativehumidity_2m"),
         APPARENT_TEMPERATURE("apparent_temperature"),
         WEATHERCODE("weathercode")
     }

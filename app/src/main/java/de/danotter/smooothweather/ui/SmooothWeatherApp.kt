@@ -6,6 +6,9 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -23,27 +26,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import androidx.core.os.LocaleListCompat
 import de.danotter.smooothweather.*
 import de.danotter.smooothweather.ui.pagerindicator.HorizontalPagerIndicator
 import de.danotter.smooothweather.ui.theme.SmooothWeatherTheme
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toJavaInstant
+import kotlinx.datetime.*
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.math.abs
+import kotlinx.datetime.TimeZone as KotlinxTimeZone
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
 @Composable
 fun SmooothWeatherApp(
-    mainUiModel: WeatherUiModel,
+    weatherUiModel: WeatherUiModel,
     placeSelectionUiModel: PlaceSelectionUiModel,
     onQueryChange: (String) -> Unit,
     onSelectPlace: (String) -> Unit
@@ -62,8 +68,8 @@ fun SmooothWeatherApp(
         onSelectPlace = onSelectPlace
     )
 
-    MainScreen(
-        mainUiModel,
+    WeatherScreen(
+        weatherUiModel,
         onOpenPlaceSelection = {
             placeSelectionTransitionState.targetState = true
         }
@@ -71,11 +77,12 @@ fun SmooothWeatherApp(
 }
 
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @Composable
-fun MainScreen(
+fun WeatherScreen(
     uiModel: WeatherUiModel,
     onOpenPlaceSelection: () -> Unit
 ) {
@@ -141,6 +148,7 @@ fun MainScreen(
     }
 }
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
 private fun WeatherPager(
@@ -148,10 +156,16 @@ private fun WeatherPager(
     pagerState: PagerState
 ) {
     Column {
-        AnimatedTemperature(temperatureProducer = {
-            uiModel.weatherPager.pages[pagerState.currentPage]
-                .temperature ?: 0
-        })
+        val currentPage = uiModel.weatherPager.pages[pagerState.currentPage]
+
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            TemperatureMainView(
+                currentPage
+            )
+        }
 
         HorizontalPager(
             pageCount = uiModel.weatherPager.pages.size,
@@ -185,27 +199,61 @@ private fun WeatherPager(
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
-private fun AnimatedTemperature(
-    temperatureProducer: @Composable () -> Int
+private fun TemperatureMainView(
+    page: WeatherPageUiModel
 ) {
-    val tweenSpec = tween<Int>(
-        durationMillis = 300,
-        easing = FastOutSlowInEasing
-    )
-    val springSpec = spring<Int>()
-    val animatedTemperature by animateIntAsState(
-        targetValue = temperatureProducer(),
-        springSpec
-    )
-    //Timber.i("targetvalue=$temperature,animated=$animatedTemperature")
-    Text(
-        text = "$animatedTemperature°",
-        style = MaterialTheme.typography.displayLarge
-            .copy(fontSize = 96.sp),
-    )
+    val transition = updateTransition(page, "pageTransition")
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+    ) {
+        val animatedTemperature by animateTemperatureAsState(page.temperature ?: 0)
+
+        Text(
+            text = buildAnnotatedString {
+                append("$animatedTemperature°")
+                this.withStyle(
+                    SpanStyle(
+                        baselineShift = BaselineShift.Superscript,
+                        fontSize = 54.sp
+                    )
+                ) {
+                    append("C")
+                }
+            },
+            style = MaterialTheme.typography.displayLarge
+                .copy(fontSize = 144.sp),
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            transition.PageTransition { page ->
+                if (page.weatherIcon != null) {
+                    Icon(
+                        iconSpecPainter(iconSpec = page.weatherIcon),
+                        contentDescription = null,
+                        modifier = Modifier.size(width = 48.dp, height = 48.dp)
+                    )
+                }
+            }
+
+            transition.PageTransition { page ->
+                Text(
+                    page.weatherDescription ?: "",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+    }
 }
 
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Composable
 private fun SmoothWeatherMainAppBar(
@@ -225,7 +273,7 @@ private fun SmoothWeatherMainAppBar(
                 val dateTimeFormatted = remember(locale) {
                     val pattern = DateFormat.getBestDateTimePattern(
                         locale,
-                        "ddMMMMhhmm"
+                        "ddMMMMHm"
                     )
                     val format = SimpleDateFormat(pattern, locale)
                     val date = Date.from(uiModel.currentDateTime.toJavaInstant())
@@ -251,45 +299,112 @@ private fun SmoothWeatherMainAppBar(
 private fun WeatherPage(
     page: WeatherPageUiModel
 ) {
+    val locale = LocaleListCompat.getAdjustedDefault()[0]
+    val hourlyTimeFormatter = remember(locale) {
+        val pattern = DateFormat.getBestDateTimePattern(locale, "Hm")
+        DateTimeFormatter.ofPattern(pattern)
+    }
     Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    page.weatherDescription ?: "",
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                if (page.weatherIcon != null) {
-                    Icon(iconSpecPainter(iconSpec = page.weatherIcon), contentDescription = null)
-                }
-            }
-
-            Text(
-                text = "${page.temperature}°",
-                style = MaterialTheme.typography.displayLarge
-                    .copy(fontSize = 96.sp),
-            )
-        }
-
         Spacer(modifier = Modifier.weight(1f))
 
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            if (page.hourlyWeather.isNotEmpty()) {
+                HourlyWeatherRow(
+                    hourlyData = HourlyListWrapper(
+                        value = page.hourlyWeather
+                    ),
+                    timeFormatter = { time ->
+                        hourlyTimeFormatter.format(time.toJavaLocalTime())
+                    }
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No data available")
+                }
+            }
+        }
+
         WeatherDetailCard(
-            feltTemperature = page.feltTemperature,
-            windSpeed = page.windSpeed,
+            feltTemperature = "${page.feltTemperature}° C",
+            windSpeed = "${page.windSpeed} km/h",
             chanceOfPrecipitation = page.chanceOfPrecipitation,
             humidityPercentage = page.humidityPercentage,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         )
+    }
+}
+
+// todo use kotlinx immutable lists
+@Immutable
+private data class HourlyListWrapper(
+    val value: List<HourWeatherUiModel>
+)
+
+@Composable
+private fun HourlyWeatherRow(
+    hourlyData: HourlyListWrapper,
+    timeFormatter: (time: LocalTime) -> String,
+) {
+    val lazyListState = rememberLazyListState(
+        initialFirstVisibleItemIndex = 12
+    )
+
+    LazyRow(
+        state = lazyListState,
+        contentPadding = PaddingValues(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(hourlyData.value) { hourlyWeather ->
+            HourlyWeatherItem(
+                hour = {
+                    Text(
+                        timeFormatter(hourlyWeather.time),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                },
+                icon = {
+                    if (hourlyWeather.icon != null) {
+                        Icon(
+                            iconSpecPainter(hourlyWeather.icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                },
+                temperature = {
+                    Text(hourlyWeather.temperature?.let { "${it}° C" } ?: "?")
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun HourlyWeatherItem(
+    hour: @Composable () -> Unit,
+    icon: @Composable () -> Unit,
+    temperature: @Composable () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        hour()
+        Spacer(modifier = Modifier.height(4.dp))
+        icon()
+        temperature()
     }
 }
 
@@ -325,7 +440,7 @@ private fun WeatherDetailCard(
                 )
 
                 WeatherDataItem(
-                    title = "Wind",
+                    title = "Wind speed",
                     content = windSpeed,
                     icon = { Icon(Icons.Default.Air, contentDescription = null) },
                     modifier = Modifier.weight(1f)
@@ -337,7 +452,7 @@ private fun WeatherDetailCard(
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
-            ){
+            ) {
                 WeatherDataItem(
                     title = "Precipitation",
                     content = chanceOfPrecipitation,
@@ -405,26 +520,15 @@ private fun iconSpecPainter(iconSpec: IconSpec): Painter {
     }
 }
 
+@ExperimentalAnimationApi
 @Suppress("NAME_SHADOWING")
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun MainTitle(
     title: String,
     subtitle: String,
 ) {
-    AnimatedContent(
-        targetState = title to subtitle,
-        transitionSpec = {
-            val spring = spring<Float>(stiffness = Spring.StiffnessLow)
-            val intSpring = spring<IntOffset>(stiffness = Spring.StiffnessLow)
-            (slideInVertically(animationSpec = intSpring) { height -> height } + fadeIn(spring) with
-                    slideOutVertically(animationSpec = intSpring) { height -> -height } + fadeOut(spring))
-                .using(
-                    // Disable clipping since the faded slide-in/out should
-                    // be displayed out of bounds.
-                    SizeTransform(clip = false)
-                )
-        }
+    DefaultAnimatedContent(
+        targetState = title to subtitle
     ) { titleState ->
         val (title, subtitle) = titleState
         Column(
@@ -444,6 +548,47 @@ private fun MainTitle(
     }
 }
 
+@ExperimentalAnimationApi
+@Composable
+private fun <S> DefaultAnimatedContent(
+    targetState: S,
+    content: @Composable AnimatedVisibilityScope.(targetState: S) -> Unit
+) {
+    AnimatedContent(
+        targetState,
+        transitionSpec = {
+            val spring = spring<Float>(stiffness = Spring.StiffnessLow)
+            val intSpring = spring<IntOffset>(stiffness = Spring.StiffnessLow)
+            (slideInVertically(animationSpec = intSpring) { height -> height } + fadeIn(spring) with
+                    slideOutVertically(animationSpec = intSpring) { height -> -height } + fadeOut(spring))
+                .using(
+                    SizeTransform(clip = false)
+                )
+        },
+        content = content
+    )
+}
+
+@ExperimentalAnimationApi
+@Composable
+private fun Transition<WeatherPageUiModel>.PageTransition(
+    content: @Composable AnimatedVisibilityScope.(targetState: WeatherPageUiModel) -> Unit
+) {
+    AnimatedContent(
+        transitionSpec = {
+            val spring = spring<Float>(stiffness = Spring.StiffnessLow)
+            val intSpring = spring<IntOffset>(stiffness = Spring.StiffnessLow)
+            (slideInVertically(animationSpec = intSpring) { height -> height } + fadeIn(spring) with
+                    slideOutVertically(animationSpec = intSpring) { height -> -height } + fadeOut(spring))
+                .using(
+                    SizeTransform(clip = false)
+                )
+        },
+        content = content
+    )
+}
+
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalComposeUiApi
@@ -451,7 +596,7 @@ private fun MainTitle(
 @Preview
 fun MainScreenPreview() {
     SmooothWeatherTheme {
-        MainScreen(
+        WeatherScreen(
             uiModel = WeatherSuccessUiModel(
                 currentDateTime = LocalDateTime(
                     year = 2022,
@@ -459,30 +604,32 @@ fun MainScreenPreview() {
                     dayOfMonth = 8,
                     hour = 12,
                     minute = 34,
-                ).toInstant(TimeZone.UTC),
+                ).toInstant(KotlinxTimeZone.UTC),
                 weatherPager = WeatherPagerUiModel(
                     pages = listOf(
                         WeatherPageUiModel(
                             placeName = "Berlin",
                             temperature = 10,
-                            feltTemperature = "8",
-                            windSpeed = "10",
+                            feltTemperature = 8,
+                            windSpeed = 10,
                             chanceOfPrecipitation = "34",
                             humidityPercentage = "48",
                             weatherDescription = "Rainy",
                             weatherIcon = null,
-                            backgroundColor = MaterialTheme.colorScheme.primary
+                            backgroundColor = MaterialTheme.colorScheme.primary,
+                            hourlyWeather = emptyList()
                         ),
                         WeatherPageUiModel(
                             placeName = "London",
                             temperature = 10,
-                            feltTemperature = "8",
-                            windSpeed = "10",
+                            feltTemperature = 8,
+                            windSpeed = 10,
                             chanceOfPrecipitation = "34",
                             humidityPercentage = "48",
                             weatherDescription = "Rainy",
                             weatherIcon = null,
-                            backgroundColor = MaterialTheme.colorScheme.secondary
+                            backgroundColor = MaterialTheme.colorScheme.secondary,
+                            hourlyWeather = emptyList()
                         ),
                     )
                 )
@@ -491,7 +638,6 @@ fun MainScreenPreview() {
         )
     }
 }
-
 
 @Preview
 @Composable
@@ -507,3 +653,77 @@ private fun WeatherDetailCardPreview() {
     }
 }
 
+@ExperimentalMaterial3Api
+@Preview
+@Composable
+private fun AnimatedNumberPlayground() {
+    var textFieldValue by remember { mutableStateOf("") }
+    var number by remember { mutableStateOf(0) }
+
+    val animatedNumber by animateTemperatureAsState(number)
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(32.dp)
+    ) {
+        Text(
+            "Value: $animatedNumber",
+
+        )
+
+        TextField(
+            textFieldValue,
+            onValueChange = { value: String ->
+                textFieldValue = value
+            }
+        )
+
+        Button(
+            onClick = {
+                textFieldValue.toIntOrNull()?.let { number = it }
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("Set number")
+        }
+    }
+}
+
+/**
+ * Makes animating number in text ui look somewhat more natural.
+ */
+@Composable
+private fun animateTemperatureAsState(
+    number: Int
+): State<Int> {
+    var previousNumber by remember { mutableStateOf(number) }
+
+    val animatableNumber = remember { Animatable(number, Int.VectorConverter) }
+    LaunchedEffect(number) {
+        if (previousNumber == number) {
+            return@LaunchedEffect
+        }
+
+        val savedPrevious = previousNumber
+        previousNumber = number
+
+        animatableNumber.animateTo(
+            number,
+            animationSpec = keyframes {
+                durationMillis = 375
+
+                if (abs(savedPrevious - number) > 3) {
+                    if (savedPrevious < number) {
+                        number - 3 at 150 with FastOutSlowInEasing
+                    } else {
+                        number + 3 at 150 with FastOutSlowInEasing
+                    }
+                }
+
+                number at 375 with LinearEasing
+            }
+        )
+    }
+
+    return animatableNumber.asState()
+}

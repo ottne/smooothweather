@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import kotlinx.datetime.*
 import javax.inject.Inject
 
 /*
@@ -12,10 +13,12 @@ import javax.inject.Inject
 class GetWeatherOverviewUseCase @Inject constructor(
     private val getCurrentPlace: GetCurrentPlaceUseCase,
     private val getSavedPlaces: GetSavedPlacesUseCase,
-    private val getWeatherData: GetWeatherDataUseCase
+    private val getWeatherData: GetWeatherDataUseCase,
+    private val clock: Clock
 ) {
 
     suspend operator fun invoke(): Flow<WeatherOverview> {
+        val currentTime = clock.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
         return getSavedPlaces()
             .map { savedPlaces ->
                 listOf(
@@ -31,7 +34,8 @@ class GetWeatherOverviewUseCase @Inject constructor(
                         placeName = locality.localityName,
                         weatherData = getWeatherData(
                             latitude = locality.latitude,
-                            longitude = locality.longitude
+                            longitude = locality.longitude,
+                            currentTime = currentTime
                         )
                     )
 
@@ -49,7 +53,6 @@ data class WeatherOverviewItem(
     val placeName: String?,
     val weatherData: WeatherData
 )
-
 
 private data class WeatherLocality(
     val longitude: Double,
