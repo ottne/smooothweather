@@ -1,9 +1,16 @@
+@file:OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalComposeUiApi::class
+)
+
 package de.danotter.smooothweather.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,8 +35,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import de.danotter.smooothweather.R
 
-@ExperimentalComposeUiApi
-@ExperimentalMaterial3Api
 @Composable
 fun PlaceSelectionDialog(
     transitionState: MutableTransitionState<Boolean>,
@@ -87,7 +92,6 @@ fun PlaceSelectionDialog(
     }
 }
 
-@ExperimentalMaterial3Api
 @Composable
 fun PlaceSelection(
     uiModel: PlaceSelectionUiModel,

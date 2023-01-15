@@ -1,9 +1,6 @@
 package de.danotter.smooothweather.domain
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.datetime.*
 import javax.inject.Inject
 
@@ -28,17 +25,18 @@ class GetWeatherOverviewUseCase @Inject constructor(
                 }
             }
             .map(List<WeatherLocality?>::filterNotNull)
-            .map {
-                it.asFlow().map { locality ->
-                    WeatherOverviewItem(
-                        placeName = locality.localityName,
-                        weatherData = getWeatherData(
-                            latitude = locality.latitude,
-                            longitude = locality.longitude,
-                            currentTime = currentTime
+            .map { localities ->
+                localities.asFlow().flatMapMerge { locality ->
+                    flowOf(
+                        WeatherOverviewItem(
+                            placeName = locality.localityName,
+                            weatherData = getWeatherData(
+                                latitude = locality.latitude,
+                                longitude = locality.longitude,
+                                currentTime = currentTime
+                            )
                         )
                     )
-
                 }.toList()
             }
             .map(::WeatherOverview)
@@ -60,8 +58,7 @@ private data class WeatherLocality(
     val localityName: String?
 )
 
-private fun CurrentPlaceSuccessResult.toWeatherLocality(): WeatherLocality? {
-    if (longitude == null || latitude == null) return null
+private fun CurrentPlaceSuccessResult.toWeatherLocality(): WeatherLocality {
     return WeatherLocality(
         longitude = longitude,
         latitude = latitude,

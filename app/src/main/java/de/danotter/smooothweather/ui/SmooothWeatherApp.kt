@@ -1,3 +1,10 @@
+@file:OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalComposeUiApi::class
+)
+
 package de.danotter.smooothweather.ui
 
 import android.text.format.DateFormat
@@ -43,10 +50,6 @@ import java.util.*
 import kotlin.math.abs
 import kotlinx.datetime.TimeZone as KotlinxTimeZone
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterial3Api
-@ExperimentalComposeUiApi
 @Composable
 fun SmooothWeatherApp(
     weatherUiModel: WeatherUiModel,
@@ -77,10 +80,6 @@ fun SmooothWeatherApp(
 }
 
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalComposeUiApi
-@ExperimentalMaterial3Api
 @Composable
 fun WeatherScreen(
     uiModel: WeatherUiModel,
@@ -148,8 +147,6 @@ fun WeatherScreen(
     }
 }
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
 @Composable
 private fun WeatherPager(
     uiModel: WeatherSuccessUiModel,
@@ -199,7 +196,6 @@ private fun WeatherPager(
     }
 }
 
-@ExperimentalAnimationApi
 @Composable
 private fun TemperatureMainView(
     page: WeatherPageUiModel
@@ -253,8 +249,6 @@ private fun TemperatureMainView(
     }
 }
 
-@ExperimentalAnimationApi
-@ExperimentalMaterial3Api
 @Composable
 private fun SmoothWeatherMainAppBar(
     uiModel: WeatherUiModel,
@@ -520,7 +514,6 @@ private fun iconSpecPainter(iconSpec: IconSpec): Painter {
     }
 }
 
-@ExperimentalAnimationApi
 @Suppress("NAME_SHADOWING")
 @Composable
 private fun MainTitle(
@@ -548,7 +541,6 @@ private fun MainTitle(
     }
 }
 
-@ExperimentalAnimationApi
 @Composable
 private fun <S> DefaultAnimatedContent(
     targetState: S,
@@ -569,7 +561,6 @@ private fun <S> DefaultAnimatedContent(
     )
 }
 
-@ExperimentalAnimationApi
 @Composable
 private fun Transition<WeatherPageUiModel>.PageTransition(
     content: @Composable AnimatedVisibilityScope.(targetState: WeatherPageUiModel) -> Unit
@@ -588,10 +579,6 @@ private fun Transition<WeatherPageUiModel>.PageTransition(
     )
 }
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterial3Api
-@ExperimentalComposeUiApi
 @Composable
 @Preview
 fun MainScreenPreview() {
@@ -653,7 +640,6 @@ private fun WeatherDetailCardPreview() {
     }
 }
 
-@ExperimentalMaterial3Api
 @Preview
 @Composable
 private fun AnimatedNumberPlayground() {
