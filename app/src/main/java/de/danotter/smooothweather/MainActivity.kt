@@ -12,6 +12,7 @@ import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
 import de.danotter.smooothweather.ui.PlaceSelectionViewModel
 import de.danotter.smooothweather.ui.SmooothWeatherApp
+import de.danotter.smooothweather.ui.WeatherViewModel
 import de.danotter.smooothweather.ui.theme.SmooothWeatherTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 

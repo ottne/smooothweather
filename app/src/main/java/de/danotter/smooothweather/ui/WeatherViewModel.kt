@@ -1,4 +1,4 @@
-package de.danotter.smooothweather
+package de.danotter.smooothweather.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.material.icons.Icons
@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import de.danotter.smooothweather.R
 import de.danotter.smooothweather.domain.GetWeatherOverviewUseCase
 import de.danotter.smooothweather.domain.WeatherType
 import kotlinx.coroutines.flow.*
