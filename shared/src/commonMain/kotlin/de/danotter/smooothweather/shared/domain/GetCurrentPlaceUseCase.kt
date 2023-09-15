@@ -14,4 +14,4 @@ data class CurrentPlaceSuccessResult(
 
 object CurrentPlacePermissionNotGranted : CurrentPlaceResult
 
-class CurrentPlaceFailureResult(error: Throwable? = null) : CurrentPlaceResult
+class CurrentPlaceFailureResult(val error: Throwable? = null) : CurrentPlaceResult

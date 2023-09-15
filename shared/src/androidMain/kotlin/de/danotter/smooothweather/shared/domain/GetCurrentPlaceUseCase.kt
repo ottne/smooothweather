@@ -10,6 +10,7 @@ import com.google.android.gms.location.Priority
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.danotter.smooothweather.shared.util.getFromLocationAsync
 import kotlinx.coroutines.tasks.await
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,7 +39,11 @@ actual class GetCurrentPlaceUseCase @Inject constructor(
             NullPointerException("No last location available.")
         )
 
-        val addresses = geocoder.getFromLocationAsync(lastLocation.latitude, lastLocation.longitude, 1)
+        val addresses = try {
+            geocoder.getFromLocationAsync(lastLocation.latitude, lastLocation.longitude, 1)
+        } catch (ioException: IOException) {
+            return CurrentPlaceFailureResult(ioException)
+        }
 
         val address = addresses.firstOrNull() ?: return CurrentPlaceFailureResult()
         return CurrentPlaceSuccessResult(

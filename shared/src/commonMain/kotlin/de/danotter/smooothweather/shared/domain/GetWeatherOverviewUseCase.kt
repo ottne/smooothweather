@@ -1,5 +1,6 @@
 package de.danotter.smooothweather.shared.domain
 
+import de.danotter.smooothweather.shared.util.logError
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.*
 
@@ -17,8 +18,14 @@ class GetWeatherOverviewUseCase constructor(
         val currentTime = clock.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
         return getSavedPlaces()
             .map { savedPlaces ->
+                val currentPlaceResult = getCurrentPlace()
+
+                if (currentPlaceResult is CurrentPlaceFailureResult) {
+                    logError("Unable to load current place", currentPlaceResult.error)
+                }
+
                 listOf(
-                    (getCurrentPlace() as? CurrentPlaceSuccessResult)?.toWeatherLocality()
+                    (currentPlaceResult as? CurrentPlaceSuccessResult)?.toWeatherLocality()
                 ) + savedPlaces.map { place ->
                     place.toWeatherLocality()
                 }

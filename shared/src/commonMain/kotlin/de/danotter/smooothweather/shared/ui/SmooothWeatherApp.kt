@@ -1,5 +1,4 @@
 @file:OptIn(
-    ExperimentalAnimationApi::class,
     ExperimentalFoundationApi::class,
     ExperimentalMaterial3Api::class,
 )
@@ -36,6 +35,7 @@ import androidx.compose.ui.unit.*
 import de.danotter.smooothweather.*
 import de.danotter.smooothweather.shared.di.DIContainer
 import de.danotter.smooothweather.shared.ui.pagerindicator.HorizontalPagerIndicator
+import de.danotter.smooothweather.shared.ui.place.PlaceSelectionUiModel
 import de.danotter.smooothweather.shared.ui.place.PlaceSelectionViewModel
 import de.danotter.smooothweather.shared.ui.weather.WeatherViewModel
 import kotlinx.datetime.*
@@ -566,7 +566,7 @@ private fun Transition<WeatherPageUiModel>.PageTransition(
         transitionSpec = {
             val spring = spring<Float>(stiffness = Spring.StiffnessLow)
             val intSpring = spring<IntOffset>(stiffness = Spring.StiffnessLow)
-            (slideInVertically(animationSpec = intSpring) { height -> height } + fadeIn(spring) with
+            (slideInVertically(animationSpec = intSpring) { height -> height } + fadeIn(spring) togetherWith
                     slideOutVertically(animationSpec = intSpring) { height -> -height } + fadeOut(spring))
                 .using(
                     SizeTransform(clip = false)
