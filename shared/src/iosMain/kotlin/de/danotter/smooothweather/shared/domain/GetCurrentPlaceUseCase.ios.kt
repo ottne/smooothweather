@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalForeignApi::class)
+
 package de.danotter.smooothweather.shared.domain
 
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.CoreLocation.CLGeocodeCompletionHandler
@@ -13,11 +16,6 @@ import platform.darwin.NSObject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-// TODO upcoming in Kotlin 1.9.0
-@RequiresOptIn
-annotation class ExperimentalForeignApi
-
-@OptIn(ExperimentalForeignApi::class)
 actual class GetCurrentPlaceUseCase {
     actual suspend operator fun invoke(): CurrentPlaceResult {
         val locationManager = CLLocationManager()
@@ -57,11 +55,17 @@ actual class GetCurrentPlaceUseCase {
         return suspendCancellableCoroutine { cont ->
             delegate = object : NSObject(), CLLocationManagerDelegateProtocol {
                 override fun locationManager(manager: CLLocationManager, didUpdateLocations: List<*>) {
+                    @Suppress("UNCHECKED_CAST")
                     val locations = didUpdateLocations as List<CLLocation>
 
                     this@findUserLocationFast.delegate = null
                     cont.resume(locations.firstOrNull())
                 }
+            }
+
+            cont.invokeOnCancellation {
+                stopUpdatingLocation()
+                this@findUserLocationFast.delegate = null
             }
 
             requestLocation()

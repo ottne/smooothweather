@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
 package de.danotter.smooothweather.shared.domain
 
 import kotlinx.cinterop.useContents
@@ -8,39 +10,46 @@ import platform.Foundation.NSError
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-@OptIn(ExperimentalForeignApi::class)
 actual class GetPlaceTypeaheadUseCase {
     actual suspend operator fun invoke(query: String): PlaceTypeaheadResult {
         val geocoder = CLGeocoder()
 
-        val placemark: List<CLPlacemark> = suspendCoroutine { cont ->
-            geocoder.geocodeAddressString(
-                addressString = query,
-                completionHandler = object : CLGeocodeCompletionHandler {
-                    override fun invoke(placemark: List<*>?, error: NSError?) {
-                        if (error != null || placemark.isNullOrEmpty()) {
-                            cont.resume(emptyList())
-                        } else {
-                            @Suppress("UNCHECKED_CAST")
-                            cont.resume(placemark as List<CLPlacemark>)
-                        }
-                    }
-                }
-            )
-        }
+        val placemarks: List<CLPlacemark> = geocoder.geocodeAddressStringAsync(query)
 
         return PlaceTypeheadSuccessResult(
-            items = placemark.mapIndexedNotNull { index, placemarkItem ->
-                val (lon, lat) = placemarkItem.location?.coordinate?.useContents {
-                    longitude to latitude
-                } ?: return@mapIndexedNotNull null
+            items = placemarks.mapIndexedNotNull { index: Int, placemarkItem: CLPlacemark ->
+                placemarkItem.toPlaceTypeaheadItem(index.toString())
+            }
+        )
+    }
+}
 
-                PlaceTypeaheadItem(
-                    id = index.toString(),
-                    name = placemarkItem.name ?: "",
-                    latitude = lat,
-                    longitude = lon
-                )
+private fun CLPlacemark.toPlaceTypeaheadItem(id: String): PlaceTypeaheadItem? {
+    val (lon, lat) = this.location?.coordinate?.useContents {
+        longitude to latitude
+    } ?: return null
+
+    return PlaceTypeaheadItem(
+        id = id,
+        name = name ?: "",
+        latitude = lat,
+        longitude = lon
+    )
+}
+
+private suspend fun CLGeocoder.geocodeAddressStringAsync(query: String): List<CLPlacemark> {
+    return suspendCoroutine { cont ->
+        geocodeAddressString(
+            addressString = query,
+            completionHandler = object : CLGeocodeCompletionHandler {
+                override fun invoke(placemark: List<*>?, error: NSError?) {
+                    if (error != null || placemark.isNullOrEmpty()) {
+                        cont.resume(emptyList())
+                    } else {
+                        @Suppress("UNCHECKED_CAST")
+                        cont.resume(placemark as List<CLPlacemark>)
+                    }
+                }
             }
         )
     }

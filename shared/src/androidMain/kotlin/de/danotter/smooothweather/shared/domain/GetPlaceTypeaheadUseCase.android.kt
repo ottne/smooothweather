@@ -1,12 +1,10 @@
 package de.danotter.smooothweather.shared.domain
 
-import android.location.Geocoder
 import de.danotter.smooothweather.shared.util.getFromLocationNameAsync
 
 actual class GetPlaceTypeaheadUseCase(
-    private val geocoder: Geocoder
+    private val geocoder: android.location.Geocoder
 ) {
-
     actual suspend operator fun invoke(query: String): PlaceTypeaheadResult {
         if (query.isBlank()) {
             return PlaceTypeheadSuccessResult(emptyList())
