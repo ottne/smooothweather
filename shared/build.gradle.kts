@@ -17,7 +17,7 @@ sqldelight {
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    targetHierarchy.default()
+    applyDefaultHierarchyTemplate()
 
     androidTarget {
         compilations.all {
@@ -26,7 +26,7 @@ kotlin {
             }
         }
     }
-    
+
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -52,39 +52,45 @@ kotlin {
                 implementation(compose.materialIconsExtended)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
-                implementation("com.jakewharton.timber:timber:5.0.1")
+                implementation(libs.timber)
 
-                implementation("androidx.annotation:annotation:1.7.0-alpha02")
+                implementation(libs.annotation)
 
-                implementation("com.squareup.sqldelight:coroutines-extensions:1.5.5")
+                implementation(libs.sqlDelight.coroutines)
 
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+                implementation(libs.coroutines.core)
 
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.serialization.json)
             }
         }
         val androidMain by getting {
             dependsOn(commonMain)
             dependencies {
-                implementation("com.google.dagger:hilt-android:2.47")
-                configurations["kapt"].dependencies.add(project.dependencies.create("com.google.dagger:hilt-compiler:2.47"))
-                configurations["coreLibraryDesugaring"].dependencies.add(project.dependencies.create("com.android.tools:desugar_jdk_libs:2.0.3"))
+                implementation(libs.hilt)
+                configurations["kapt"].dependencies.add(project.dependencies.create(libs.hilt.compiler.get()))
+                configurations["coreLibraryDesugaring"].dependencies.add(
+                    project.dependencies.create(
+                        libs.desugaring.get()
+                    )
+                )
 
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.2")
-                implementation("com.squareup.retrofit2:retrofit:2.9.0")
-                implementation("com.squareup.okhttp3:okhttp:4.11.0")
-                implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-                implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
-                implementation("com.squareup.sqldelight:android-driver:1.5.5")
-                implementation("com.google.android.gms:play-services-location:21.0.1")
-                implementation("androidx.compose.ui:ui-text-google-fonts:1.4.3")
+                // https://youtrack.jetbrains.com/issue/KT-58759
+                implementation(project.dependencies.platform(libs.compose.bom))
+                implementation(libs.coroutines.android)
+                implementation(libs.coroutines.play.services)
+                implementation(libs.retrofit)
+                implementation(libs.okhttp)
+                implementation(libs.okhttp.loggingInterceptor)
+                implementation(libs.retrofit2.serializationConverter)
+                implementation(libs.sqlDelight.androidDriver)
+                implementation(libs.playServices.location)
+                implementation(libs.compose.googleFonts)
             }
         }
         val iosMain by getting {
             dependencies {
-                implementation("com.squareup.sqldelight:native-driver:1.5.5")
+                implementation(libs.sqlDelight.nativeDriver)
             }
         }
         val commonTest by getting {

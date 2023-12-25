@@ -1,0 +1,47 @@
+[versions]
+kotlin = "1.9.21"
+agp = "8.2.0"
+dagger = "2.47"
+jetbrainsCompose = "1.5.11"
+coroutines = "1.7.3"
+okhttp = "4.11.0"
+retrofit = "2.9.0"
+sqlDelight = "1.5.5"
+lifecycle = "2.6.2"
+activity = "1.8.2"
+
+[libraries]
+annotation = { module = "androidx.annotation:annotation", version = "1.7.1" }
+androidx-core = "androidx.core:core-ktx:1.12.0"
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
+androidx-test-junit = "androidx.test.ext:junit:1.1.5"
+lifecycle-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+compose-bom = "androidx.compose:compose-bom:2023.10.01"
+compose-googleFonts = { module = "androidx.compose.ui:ui-text-google-fonts" }
+compose-testManifest = { module = "androidx.compose.ui:ui-test-manifest" }
+compose-uiToolingPreview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-uiTooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-uiTestJunit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutines" }
+okhttp-loggingInterceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+playServices-location = { module = "com.google.android.gms:play-services-location", version = "21.0.1" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit2-serializationConverter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version = "1.0.0" }
+serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.5.1" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.4.0" }
+sqlDelight-gradlePlugin = { module = "com.squareup.sqldelight:gradle-plugin", version.ref = "sqlDelight" }
+sqlDelight-nativeDriver = { module = "com.squareup.sqldelight:native-driver", version.ref = "sqlDelight" }
+sqlDelight-coroutines = { module = "com.squareup.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
+sqlDelight-androidDriver = { module = "com.squareup.sqldelight:android-driver", version.ref = "sqlDelight" }
+junit = "junit:junit:4.13.2"
+espresso-core = "androidx.test.espresso:espresso-core:3.5.1"
+hilt = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger" }
+timber = { module = "com.jakewharton.timber:timber", version = "5.0.1" }
+desugaring = "com.android.tools:desugar_jdk_libs:2.0.4"
+
+[plugins]
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
