@@ -1,5 +1,9 @@
 package de.danotter.smooothweather.shared.ui.weather
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.WbCloudy
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -26,7 +30,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalTime
 
-class WeatherViewModel constructor(
+class WeatherViewModel(
     getWeatherOverview: GetWeatherOverviewUseCase,
     clock: Clock
 ) : BaseViewModel() {
@@ -57,7 +61,8 @@ class WeatherViewModel constructor(
                                     weatherDescription = weatherData.weatherDescription,
                                     weatherIcon = icon,
                                     feltTemperature = weatherData.apparentTemperature?.toInt(),
-                                    chanceOfPrecipitation = weatherData.precipitation?.toString() ?: "? %",
+                                    chanceOfPrecipitation = weatherData.precipitation?.toString()
+                                        ?: "? %",
                                     windSpeed = weatherData.windSpeed?.toInt(),
                                     humidityPercentage = weatherData.humidity?.toString() ?: "?",
                                     backgroundColor = color,
@@ -80,28 +85,22 @@ class WeatherViewModel constructor(
 
             emit(WeatherErrorUiModel)
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), WeatherLoadingUiModel)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+            WeatherLoadingUiModel
+        )
 
     private fun getWeatherIcon(weatherType: WeatherType): IconSpec {
-        return IconSpec.ImageVectorIcon(
-            ImageVector.Builder(
-                defaultHeight = 24.dp,
-                defaultWidth = 24.dp,
-                viewportHeight = 10f,
-                viewportWidth = 10f
-            )
-                .build()
-        )
-        // TODO
-        //return when (weatherType) {
-        //    WeatherType.CLOUDY -> IconSpec.ImageVectorIcon(Icons.Default.Cloud)
-        //    WeatherType.PARTLY_CLOUDY -> IconSpec.ResourceIcon(R.drawable.ic_partly_cloudy)
-        //    WeatherType.CLEAR_SKY -> IconSpec.ImageVectorIcon(Icons.Default.WbSunny)
-        //    WeatherType.FOG -> IconSpec.ImageVectorIcon(Icons.Default.Cloud)
-        //    WeatherType.DRIZZLE -> IconSpec.ResourceIcon(R.drawable.ic_rainy)
-        //    WeatherType.RAIN -> IconSpec.ResourceIcon(R.drawable.ic_rainy)
-        //    WeatherType.SNOW -> IconSpec.ResourceIcon(R.drawable.ic_snowy)
-        //    WeatherType.STORM -> IconSpec.ResourceIcon(R.drawable.ic_thunderstorm)
-        //}
+        return when (weatherType) {
+            WeatherType.CLOUDY -> IconSpec.ImageVectorIcon(Icons.Default.Cloud)
+            WeatherType.PARTLY_CLOUDY -> IconSpec.ResourceIcon("ic_partly_cloudy.xml")
+            WeatherType.CLEAR_SKY -> IconSpec.ImageVectorIcon(Icons.Default.WbSunny)
+            WeatherType.FOG -> IconSpec.ImageVectorIcon(Icons.Default.Cloud)
+            WeatherType.DRIZZLE -> IconSpec.ResourceIcon("ic_rainy.xml")
+            WeatherType.RAIN -> IconSpec.ResourceIcon("ic_rainy.xml")
+            WeatherType.SNOW -> IconSpec.ResourceIcon("ic_snowy.xml")
+            WeatherType.STORM -> IconSpec.ResourceIcon("ic_thunderstorm.xml")
+        }
     }
 }

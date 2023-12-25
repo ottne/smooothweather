@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class PlaceSelectionViewModel constructor(
+class PlaceSelectionViewModel(
     getPlaceTypeahead: GetPlaceTypeaheadUseCase,
     private val addPlace: AddPlaceUseCase
 ) : BaseViewModel() {

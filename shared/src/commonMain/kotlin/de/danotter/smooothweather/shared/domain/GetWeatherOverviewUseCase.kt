@@ -7,7 +7,7 @@ import kotlinx.datetime.*
 /*
  * Fuses data from different use cases into a single observable stream.
  */
-class GetWeatherOverviewUseCase constructor(
+class GetWeatherOverviewUseCase(
     private val getCurrentPlace: GetCurrentPlaceUseCase,
     private val getSavedPlaces: GetSavedPlacesUseCase,
     private val getWeatherData: GetWeatherDataUseCase,

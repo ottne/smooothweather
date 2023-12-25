@@ -107,6 +107,11 @@ android {
         minSdk = 24
     }
 
+    sourceSets["main"].resources.srcDirs(
+        "src/androidMain/resources",
+        "src/commonMain/resources"
+    )
+
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
 

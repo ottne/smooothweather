@@ -6,7 +6,7 @@ import kotlinx.datetime.LocalTime
 import kotlin.random.Random
 import kotlin.random.nextInt
 
-class GetWeatherDataUseCase constructor(
+class GetWeatherDataUseCase(
     private val openMeteoApi: OpenMeteoApi
 ) {
 

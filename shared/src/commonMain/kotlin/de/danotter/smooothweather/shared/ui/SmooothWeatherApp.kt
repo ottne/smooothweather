@@ -39,6 +39,8 @@ import de.danotter.smooothweather.shared.ui.place.PlaceSelectionUiModel
 import de.danotter.smooothweather.shared.ui.place.PlaceSelectionViewModel
 import de.danotter.smooothweather.shared.ui.weather.WeatherViewModel
 import kotlinx.datetime.*
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import kotlin.math.abs
 
 @Composable
@@ -500,6 +502,7 @@ private fun WeatherDataItem(
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun iconSpecPainter(iconSpec: IconSpec): Painter {
     return when (iconSpec) {
@@ -507,7 +510,7 @@ private fun iconSpecPainter(iconSpec: IconSpec): Painter {
             rememberVectorPainter(image = iconSpec.imageVector)
         }
         is IconSpec.ResourceIcon -> {
-            resourceIdPainter(resourceId = iconSpec.resourceId)
+            painterResource(iconSpec.resourceFile)
         }
     }
 }

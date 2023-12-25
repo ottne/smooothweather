@@ -83,7 +83,7 @@ data class WeatherSuccessUiModel(
 @Immutable
 sealed interface IconSpec {
     class ImageVectorIcon(val imageVector: ImageVector) : IconSpec
-    class ResourceIcon(val resourceId: Int) : IconSpec
+    class ResourceIcon(val resourceFile: String) : IconSpec
 }
 
 @Immutable
