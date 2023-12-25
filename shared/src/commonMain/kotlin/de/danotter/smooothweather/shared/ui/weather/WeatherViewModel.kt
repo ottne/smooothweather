@@ -19,6 +19,7 @@ import de.danotter.smooothweather.shared.ui.WeatherPageUiModel
 import de.danotter.smooothweather.shared.ui.WeatherPagerUiModel
 import de.danotter.smooothweather.shared.ui.WeatherSuccessUiModel
 import de.danotter.smooothweather.shared.ui.WeatherUiModel
+import de.danotter.smooothweather.shared.util.logError
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -81,7 +82,7 @@ class WeatherViewModel(
         )
     }
         .catch { error ->
-            //Timber.e(error, "Error loading weather data")
+            logError("Error loading weather data", error)
 
             emit(WeatherErrorUiModel)
         }

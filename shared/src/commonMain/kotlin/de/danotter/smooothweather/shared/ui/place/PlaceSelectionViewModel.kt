@@ -7,6 +7,7 @@ import de.danotter.smooothweather.shared.domain.PlaceTypeaheadErrorResult
 import de.danotter.smooothweather.shared.domain.PlaceTypeaheadItem
 import de.danotter.smooothweather.shared.domain.PlaceTypeheadSuccessResult
 import de.danotter.smooothweather.shared.ui.BaseViewModel
+import de.danotter.smooothweather.shared.util.logError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -53,7 +54,7 @@ class PlaceSelectionViewModel(
                 }
 
                 is PlaceTypeaheadErrorResult -> {
-                    //Timber.e(typeaheads.error, "Error getting places results")
+                    logError("Error getting places results", typeaheads.error)
                     PlaceSelectionErrorUiModel(error = typeaheads.error)
                 }
             }

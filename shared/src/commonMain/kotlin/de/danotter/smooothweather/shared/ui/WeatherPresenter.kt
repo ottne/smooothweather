@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import de.danotter.smooothweather.shared.domain.GetWeatherOverviewUseCase
 import de.danotter.smooothweather.shared.domain.WeatherType
+import de.danotter.smooothweather.shared.util.logError
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
@@ -64,7 +65,7 @@ fun weatherPresenter(
     )
 }
     .catch { error ->
-        //Timber.e(error, "Error loading weather data")
+        logError("Error loading weather data", error)
 
         emit(WeatherErrorUiModel)
     }
