@@ -12,6 +12,7 @@ plugins {
     id 'org.jetbrains.kotlin.android' version libs.versions.kotlin apply false
     id 'com.google.dagger.hilt.android' version libs.versions.dagger apply false
     id 'org.jetbrains.compose' version libs.versions.jetbrainsCompose apply false
+    id 'com.google.devtools.ksp' version libs.versions.ksp apply false
 }
 
 allprojects {

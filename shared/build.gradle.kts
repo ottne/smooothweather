@@ -1,7 +1,7 @@
 plugins {
     kotlin("multiplatform")
-    kotlin("kapt")
     kotlin("native.cocoapods")
+    id("com.google.devtools.ksp")
     id("com.android.library")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.serialization")
@@ -68,7 +68,6 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.hilt)
-                configurations["kapt"].dependencies.add(project.dependencies.create(libs.hilt.compiler.get()))
                 configurations["coreLibraryDesugaring"].dependencies.add(
                     project.dependencies.create(
                         libs.desugaring.get()
@@ -114,6 +113,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+}
+
+dependencies {
+    add("kspAndroid", project.dependencies.create(libs.hilt.compiler.get()))
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
