@@ -5,13 +5,15 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("com.squareup.sqldelight")
+    id("app.cash.sqldelight")
 }
 
 
 sqldelight {
-    database("Database") { // This will be the name of the generated database class.
-        packageName = "de.danotter.smooothweather.shared.db"
+    databases {
+        create("Database") {
+            packageName.set("de.danotter.smooothweather.shared.db")
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 package de.danotter.smooothweather.shared
 
-import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
+import app.cash.sqldelight.driver.native.NativeSqliteDriver
 import de.danotter.smooothweather.shared.api.OpenMeteoApi
 import de.danotter.smooothweather.shared.db.Database
 import de.danotter.smooothweather.shared.di.DIContainer

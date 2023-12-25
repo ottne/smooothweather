@@ -1,7 +1,7 @@
 package de.danotter.smooothweather.shared.di
 
 import android.content.Context
-import com.squareup.sqldelight.android.AndroidSqliteDriver
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
